@@ -314,6 +314,8 @@ class Consumer(object):
                     crit('Frequent restarts detected: %r', exc, exc_info=1)
                     sleep(1)
             self.restart_count += 1
+            sleep(5)
+            print("Starting blueprint")
             try:
                 blueprint.start(self)
             except self.connection_errors as exc:

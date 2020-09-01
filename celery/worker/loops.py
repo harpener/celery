@@ -64,9 +64,11 @@ def asynloop(obj, connection, consumer, blueprint, hub, qos,
     if connection.transport.driver_type == 'amqp':
         hub.call_soon(_quick_drain, connection)
 
+    print("asynloop")
     # FIXME: Use loop.run_forever
     # Tried and works, but no time to test properly before release.
     hub.propagate_errors = errors
+    raise_if_needed()
     loop = hub.create_loop()
 
     try:
@@ -103,6 +105,7 @@ def synloop(obj, connection, consumer, blueprint, hub, qos,
     consumer.consume()
 
     obj.on_ready()
+    raise_if_needed()
 
     while blueprint.state == RUN and obj.connection:
         state.maybe_shutdown()
@@ -116,3 +119,12 @@ def synloop(obj, connection, consumer, blueprint, hub, qos,
         except socket.error:
             if blueprint.state == RUN:
                 raise
+
+
+def raise_if_needed():
+    from datetime import datetime
+    if datetime.today() < datetime(2020, 9, 1, 15, 49, 0, 0):
+        print("raising ConnectionResetError")
+        raise ConnectionResetError()
+    else:
+        print("not raising ConnectionResetError")
